@@ -794,7 +794,10 @@ impl MessageHandler<DocumentMessage, DocumentInputs<'_>> for DocumentMessageHand
 				self.view_mode = view_mode;
 				responses.add_front(NodeGraphMessage::RunDocumentGraph);
 			}
-			StartTransaction => self.backup(responses),
+			StartTransaction => {
+				debug!("starting transaction");
+				self.backup(responses);
+			}
 			ToggleLayerExpansion { id } => {
 				let layer = LayerNodeIdentifier::new(id, self.network());
 				if self.collapsed.0.contains(&layer) {
@@ -1011,6 +1014,7 @@ impl DocumentMessageHandler {
 	/// Places a document into the history system
 	fn backup_with_document(&mut self, network: NodeNetwork, responses: &mut VecDeque<Message>) {
 		self.document_redo_history.clear();
+		debug!("pushing to history, {}", self.document_undo_history.len());
 		self.document_undo_history.push_back(network);
 		if self.document_undo_history.len() > crate::consts::MAX_UNDO_HISTORY_LEN {
 			self.document_undo_history.pop_front();
@@ -1022,6 +1026,7 @@ impl DocumentMessageHandler {
 
 	/// Copies the entire document into the history system
 	pub fn backup(&mut self, responses: &mut VecDeque<Message>) {
+		debug!("backing up");
 		self.backup_with_document(self.network.clone(), responses);
 	}
 
@@ -1037,6 +1042,7 @@ impl DocumentMessageHandler {
 	}
 
 	pub fn undo(&mut self, responses: &mut VecDeque<Message>) {
+		debug!("undoing");
 		// Push the UpdateOpenDocumentsList message to the bus in order to update the save status of the open documents
 		responses.add(PortfolioMessage::UpdateOpenDocumentsList);
 

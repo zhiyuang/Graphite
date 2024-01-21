@@ -140,6 +140,10 @@ pub struct ColorButton {
 	#[serde(skip)]
 	#[derivative(Debug = "ignore", PartialEq = "ignore")]
 	pub on_update: WidgetCallback<ColorButton>,
+
+	#[serde(skip)]
+	#[derivative(Debug = "ignore", PartialEq = "ignore")]
+	pub on_preview: WidgetCallback<ColorButton>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Derivative, Default, WidgetBuilder, specta::Type)]

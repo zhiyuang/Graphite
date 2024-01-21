@@ -48,6 +48,50 @@ impl<F: Fn(&MessageDiscriminant) -> Vec<KeysGroup>> MessageHandler<LayoutMessage
 		use LayoutMessage::*;
 		#[remain::sorted]
 		match message {
+			PreviewLayout { layout_target, widget_id, value } => {
+				// Look up the layout
+				let layout = if let Some(layout) = self.layouts.get_mut(layout_target as usize) {
+					layout
+				} else {
+					warn!("PreviewLayout was called referencing an invalid layout. `widget_id: {widget_id}`, `layout_target: {layout_target:?}`",);
+					return;
+				};
+
+				let widget_holder = if let Some(widget_holder) = layout.iter_mut().find(|widget| widget.widget_id == widget_id) {
+					widget_holder
+				} else {
+					warn!("PreviewLayout was called referencing an invalid widget ID, although the layout target was valid. `widget_id: {widget_id}`, `layout_target: {layout_target:?}`",);
+					return;
+				};
+
+				#[remain::sorted]
+				match &mut widget_holder.widget {
+					Widget::ColorButton(color_button) => {
+						let update_value = value.as_object().expect("ColorButton update was not of type: object");
+						let parsed_color = (|| {
+							let is_none = update_value.get("none")?.as_bool()?;
+
+							if !is_none {
+								Some(Some(Color::from_rgbaf32(
+									update_value.get("red")?.as_f64()? as f32,
+									update_value.get("green")?.as_f64()? as f32,
+									update_value.get("blue")?.as_f64()? as f32,
+									update_value.get("alpha")?.as_f64()? as f32,
+								)?))
+							} else {
+								Some(None)
+							}
+						})()
+						.unwrap_or_else(|| panic!("ColorButton update was not able to be parsed with color data: {color_button:?}"));
+						color_button.value = parsed_color;
+
+						let callback_message = (color_button.on_preview.callback)(color_button);
+						responses.add(callback_message);
+					}
+					_ => {}
+				};
+				responses.add(ResendActiveWidget { layout_target, widget_id: widget_id });
+			}
 			ResendActiveWidget { layout_target, widget_id } => {
 				// Find the updated diff based on the specified layout target
 				let Some(diff) = (match &self.layouts[layout_target as usize] {
@@ -112,6 +156,7 @@ impl<F: Fn(&MessageDiscriminant) -> Vec<KeysGroup>> MessageHandler<LayoutMessage
 						})()
 						.unwrap_or_else(|| panic!("ColorButton update was not able to be parsed with color data: {color_button:?}"));
 						color_button.value = parsed_color;
+						debug!("color button message");
 						let callback_message = (color_button.on_update.callback)(color_button);
 						responses.add(callback_message);
 					}

@@ -61,6 +61,10 @@
 		editor.instance.updateLayout(layoutTarget, widgets[index].widgetId, value);
 	}
 
+	function previewLayout(index: number, value: unknown) {
+		editor.instance.previewLayout(layoutTarget, widgets[index].widgetId, value);
+	}
+
 	// TODO: This seems to work, but verify the correctness and terseness of this, it's adapted from https://stackoverflow.com/a/67434028/775283
 	function exclude<T extends object>(props: T, additional?: (keyof T)[]): Omit<T, typeof additional extends Array<infer K> ? K : never> {
 		const exclusions = ["kind", ...(additional || [])];
@@ -80,7 +84,15 @@
 		{/if}
 		{@const colorInput = narrowWidgetProps(component.props, "ColorButton")}
 		{#if colorInput}
-			<ColorButton {...exclude(colorInput)} on:value={({ detail }) => updateLayout(index, detail)} />
+			<ColorButton
+				{...exclude(colorInput)}
+				on:value={({ detail }) => {
+					previewLayout(index, detail);
+				}}
+				on:start={({ detail }) => {
+					updateLayout(index, detail);
+				}}
+			/>
 		{/if}
 		{@const curvesInput = narrowWidgetProps(component.props, "CurveInput")}
 		{#if curvesInput}

@@ -22,9 +22,24 @@ pub fn string_properties(text: impl Into<String>) -> Vec<LayoutGroup> {
 	vec![LayoutGroup::Row { widgets: vec![widget] }]
 }
 
+fn optionally_preview_value<T>(value: impl Fn(&T) -> Option<TaggedValue> + 'static + Send + Sync, node_id: NodeId, input_index: usize) -> impl Fn(&T) -> Message + 'static + Send + Sync {
+	move |input_value: &T| {
+		if let Some(value) = value(input_value) {
+			NodeGraphMessage::PreviewInputValue { node_id, input_index, value }.into()
+		} else {
+			Message::NoOp
+		}
+	}
+}
+
+fn preview_value<T>(value: impl Fn(&T) -> TaggedValue + 'static + Send + Sync, node_id: NodeId, input_index: usize) -> impl Fn(&T) -> Message + 'static + Send + Sync {
+	optionally_preview_value(move |v| Some(value(v)), node_id, input_index)
+}
+
 fn optionally_update_value<T>(value: impl Fn(&T) -> Option<TaggedValue> + 'static + Send + Sync, node_id: NodeId, input_index: usize) -> impl Fn(&T) -> Message + 'static + Send + Sync {
 	move |input_value: &T| {
 		if let Some(value) = value(input_value) {
+			debug!("updating value");
 			NodeGraphMessage::SetInputValue { node_id, input_index, value }.into()
 		} else {
 			Message::NoOp
@@ -746,6 +761,7 @@ fn color_widget(document_node: &DocumentNode, node_id: NodeId, index: usize, nam
 				color_props
 					.value(Some(x as Color))
 					.on_update(update_value(|x: &ColorButton| TaggedValue::Color(x.value.unwrap()), node_id, index))
+					.on_preview(preview_value(|x: &ColorButton| TaggedValue::Color(x.value.unwrap()), node_id, index))
 					.widget_holder(),
 			])
 		} else if let &TaggedValue::OptionalColor(x) = tagged_value {
@@ -754,6 +770,7 @@ fn color_widget(document_node: &DocumentNode, node_id: NodeId, index: usize, nam
 				color_props
 					.value(x)
 					.on_update(update_value(|x: &ColorButton| TaggedValue::OptionalColor(x.value), node_id, index))
+					.on_preview(preview_value(|x: &ColorButton| TaggedValue::OptionalColor(x.value), node_id, index))
 					.widget_holder(),
 			])
 		}

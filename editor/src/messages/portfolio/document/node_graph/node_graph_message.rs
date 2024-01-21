@@ -74,6 +74,11 @@ pub enum NodeGraphMessage {
 		input_index: usize,
 		value: TaggedValue,
 	},
+	PreviewInputValue {
+		node_id: NodeId,
+		input_index: usize,
+		value: TaggedValue,
+	},
 	SetNodeInput {
 		node_id: NodeId,
 		input_index: usize,

@@ -263,6 +263,19 @@ impl JsEditorHandle {
 		}
 	}
 
+	#[wasm_bindgen(js_name = previewLayout)]
+	pub fn preview_layout(&self, layout_target: JsValue, widget_id: u64, value: JsValue) -> Result<(), JsValue> {
+		let widget_id = WidgetId(widget_id);
+		match (from_value(layout_target), from_value(value)) {
+			(Ok(layout_target), Ok(value)) => {
+				let message = LayoutMessage::PreviewLayout { layout_target, widget_id, value };
+				self.dispatch(message);
+				Ok(())
+			}
+			(target, val) => Err(Error::new(&format!("Could not update UI\nDetails:\nTarget: {target:?}\nValue: {val:?}")).into()),
+		}
+	}
+
 	#[wasm_bindgen(js_name = loadPreferences)]
 	pub fn load_preferences(&self, preferences: String) {
 		let message = PreferencesMessage::Load { preferences };

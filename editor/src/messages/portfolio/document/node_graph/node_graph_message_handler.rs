@@ -844,8 +844,21 @@ impl<'a> MessageHandler<NodeGraphMessage, NodeGraphHandlerData<'a>> for NodeGrap
 			NodeGraphMessage::SetInputValue { node_id, input_index, value } => {
 				if let Some(network) = document_network.nested_network(&self.network) {
 					if let Some(node) = network.nodes.get(&node_id) {
+						debug!("set input value");
 						responses.add(DocumentMessage::StartTransaction);
 
+						let input = NodeInput::Value { tagged_value: value, exposed: false };
+						responses.add(NodeGraphMessage::SetNodeInput { node_id, input_index, input });
+						responses.add(PropertiesPanelMessage::Refresh);
+						if (node.name != "Imaginate" || input_index == 0) && network.connected_to_output(node_id) {
+							responses.add(NodeGraphMessage::RunDocumentGraph);
+						}
+					}
+				}
+			}
+			NodeGraphMessage::PreviewInputValue { node_id, input_index, value } => {
+				if let Some(network) = document_network.nested_network(&self.network) {
+					if let Some(node) = network.nodes.get(&node_id) {
 						let input = NodeInput::Value { tagged_value: value, exposed: false };
 						responses.add(NodeGraphMessage::SetNodeInput { node_id, input_index, input });
 						responses.add(PropertiesPanelMessage::Refresh);
@@ -943,6 +956,7 @@ impl<'a> MessageHandler<NodeGraphMessage, NodeGraphHandlerData<'a>> for NodeGrap
 			}
 			NodeGraphMessage::ToggleSelectedHidden => {
 				if let Some(network) = document_network.nested_network(&self.network) {
+					debug!("toggle selection hidden");
 					responses.add(DocumentMessage::StartTransaction);
 
 					let new_hidden = !selected_nodes.selected_nodes().any(|id| network.disabled.contains(id));
@@ -973,6 +987,7 @@ impl<'a> MessageHandler<NodeGraphMessage, NodeGraphHandlerData<'a>> for NodeGrap
 				self.update_selection_action_buttons(document_network, selected_nodes, responses);
 			}
 			NodeGraphMessage::SetName { node_id, name } => {
+				debug!("set name");
 				responses.add(DocumentMessage::StartTransaction);
 				responses.add(NodeGraphMessage::SetNameImpl { node_id, name });
 			}
@@ -986,6 +1001,7 @@ impl<'a> MessageHandler<NodeGraphMessage, NodeGraphHandlerData<'a>> for NodeGrap
 				}
 			}
 			NodeGraphMessage::TogglePreview { node_id } => {
+				debug!("toggle preview");
 				responses.add(DocumentMessage::StartTransaction);
 				responses.add(NodeGraphMessage::TogglePreviewImpl { node_id });
 			}
