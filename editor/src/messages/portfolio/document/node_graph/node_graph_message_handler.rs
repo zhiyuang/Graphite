@@ -859,6 +859,7 @@ impl<'a> MessageHandler<NodeGraphMessage, NodeGraphHandlerData<'a>> for NodeGrap
 			NodeGraphMessage::PreviewInputValue { node_id, input_index, value } => {
 				if let Some(network) = document_network.nested_network(&self.network) {
 					if let Some(node) = network.nodes.get(&node_id) {
+						debug!("preview input value");
 						let input = NodeInput::Value { tagged_value: value, exposed: false };
 						responses.add(NodeGraphMessage::SetNodeInput { node_id, input_index, input });
 						responses.add(PropertiesPanelMessage::Refresh);

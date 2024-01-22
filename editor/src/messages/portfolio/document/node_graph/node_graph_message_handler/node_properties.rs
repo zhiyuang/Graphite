@@ -339,6 +339,7 @@ fn number_widget(document_node: &DocumentNode, node_id: NodeId, index: usize, na
 			number_props
 				.value(Some(x))
 				.on_update(update_value(move |x: &NumberInput| TaggedValue::F64(x.value.unwrap()), node_id, index))
+				.on_preview(preview_value(move |x: &NumberInput| TaggedValue::F64(x.value.unwrap()), node_id, index))
 				.widget_holder(),
 		])
 	} else if let NodeInput::Value {
@@ -351,6 +352,7 @@ fn number_widget(document_node: &DocumentNode, node_id: NodeId, index: usize, na
 			number_props
 				.value(Some(x as f64))
 				.on_update(update_value(move |x: &NumberInput| TaggedValue::U32((x.value.unwrap()) as u32), node_id, index))
+				.on_preview(preview_value(move |x: &NumberInput| TaggedValue::U32((x.value.unwrap()) as u32), node_id, index))
 				.widget_holder(),
 		])
 	} else if let NodeInput::Value {
@@ -363,6 +365,7 @@ fn number_widget(document_node: &DocumentNode, node_id: NodeId, index: usize, na
 			number_props
 				.value(Some(x as f64))
 				.on_update(update_value(move |x: &NumberInput| TaggedValue::F32((x.value.unwrap()) as f32), node_id, index))
+				.on_preview(preview_value(move |x: &NumberInput| TaggedValue::F32((x.value.unwrap()) as f32), node_id, index))
 				.widget_holder(),
 		])
 	}
@@ -1482,6 +1485,11 @@ pub fn transform_properties(document_node: &DocumentNode, node_id: NodeId, _cont
 					.range_min(Some(-180.))
 					.range_max(Some(180.))
 					.on_update(update_value(
+						|number_input: &NumberInput| TaggedValue::F32((number_input.value.unwrap() as f32).to_radians()),
+						node_id,
+						index,
+					))
+					.on_preview(preview_value(
 						|number_input: &NumberInput| TaggedValue::F32((number_input.value.unwrap() as f32).to_radians()),
 						node_id,
 						index,

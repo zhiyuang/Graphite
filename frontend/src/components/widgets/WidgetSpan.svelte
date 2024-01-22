@@ -126,7 +126,8 @@
 		{#if numberInput}
 			<NumberInput
 				{...exclude(numberInput)}
-				on:value={({ detail }) => debouncer((value) => updateLayout(index, value)).debounceUpdateValue(detail)}
+				on:value={({ detail }) => debouncer((value) => previewLayout(index, value)).debounceUpdateValue(detail)}
+				on:start={({ detail }) => updateLayout(index, detail)}
 				incrementCallbackIncrease={() => updateLayout(index, "Increment")}
 				incrementCallbackDecrease={() => updateLayout(index, "Decrement")}
 			/>

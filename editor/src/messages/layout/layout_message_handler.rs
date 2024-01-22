@@ -88,6 +88,23 @@ impl<F: Fn(&MessageDiscriminant) -> Vec<KeysGroup>> MessageHandler<LayoutMessage
 						let callback_message = (color_button.on_preview.callback)(color_button);
 						responses.add(callback_message);
 					}
+					Widget::NumberInput(number_input) => match value {
+						Value::Number(num) => {
+							debug!("number input preview");
+							let update_value = num.as_f64().unwrap();
+							number_input.value = Some(update_value);
+							let callback_message = (number_input.on_preview.callback)(number_input);
+							responses.add(callback_message);
+						}
+						Value::String(str) => match str.as_str() {
+							"Increment" => responses.add((number_input.increment_callback_increase.callback)(number_input)),
+							"Decrement" => responses.add((number_input.increment_callback_decrease.callback)(number_input)),
+							_ => {
+								panic!("Invalid string found when updating `NumberInput`")
+							}
+						},
+						_ => {} // If it's some other type we could just ignore it and leave the value as is
+					},
 					_ => {}
 				};
 				responses.add(ResendActiveWidget { layout_target, widget_id: widget_id });
@@ -156,7 +173,7 @@ impl<F: Fn(&MessageDiscriminant) -> Vec<KeysGroup>> MessageHandler<LayoutMessage
 						})()
 						.unwrap_or_else(|| panic!("ColorButton update was not able to be parsed with color data: {color_button:?}"));
 						color_button.value = parsed_color;
-						debug!("color button message");
+
 						let callback_message = (color_button.on_update.callback)(color_button);
 						responses.add(callback_message);
 					}

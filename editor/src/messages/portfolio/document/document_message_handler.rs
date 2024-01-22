@@ -794,10 +794,7 @@ impl MessageHandler<DocumentMessage, DocumentInputs<'_>> for DocumentMessageHand
 				self.view_mode = view_mode;
 				responses.add_front(NodeGraphMessage::RunDocumentGraph);
 			}
-			StartTransaction => {
-				debug!("starting transaction");
-				self.backup(responses);
-			}
+			StartTransaction => self.backup(responses),
 			ToggleLayerExpansion { id } => {
 				let layer = LayerNodeIdentifier::new(id, self.network());
 				if self.collapsed.0.contains(&layer) {

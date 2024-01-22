@@ -204,6 +204,10 @@ pub struct NumberInput {
 	#[serde(skip)]
 	#[derivative(Debug = "ignore", PartialEq = "ignore")]
 	pub on_update: WidgetCallback<NumberInput>,
+
+	#[serde(skip)]
+	#[derivative(Debug = "ignore", PartialEq = "ignore")]
+	pub on_preview: WidgetCallback<NumberInput>,
 }
 
 impl NumberInput {
