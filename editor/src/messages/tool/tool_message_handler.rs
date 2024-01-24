@@ -221,6 +221,18 @@ impl MessageHandler<ToolMessage, (&DocumentMessageHandler, DocumentId, &InputPre
 
 				document_data.update_working_colors(responses); // TODO: Make this an event
 			}
+			ToolMessage::Undo => {
+				let tool_data = &mut self.tool_state.tool_data;
+				match tool_data.active_tool_type {
+					ToolType::Pen => {
+						responses.add_front(DocumentMessage::Undo);
+					}
+					_ => {
+						responses.add_front(DocumentMessage::Undo);
+					}
+				}
+				debug!("Tool Message Undo");
+			}
 
 			// Sub-messages
 			#[remain::unsorted]
@@ -282,6 +294,7 @@ impl MessageHandler<ToolMessage, (&DocumentMessageHandler, DocumentId, &InputPre
 			SelectRandomPrimaryColor,
 			ResetColors,
 			SwapColors,
+			Undo,
 		);
 		list.extend(self.tool_state.tool_data.active_tool().actions());
 		list.extend(self.transform_layer_handler.actions());

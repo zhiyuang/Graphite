@@ -807,6 +807,7 @@ impl MessageHandler<DocumentMessage, DocumentInputs<'_>> for DocumentMessageHand
 				responses.add(NodeGraphMessage::RunDocumentGraph);
 			}
 			Undo => {
+				debug!("Document Undo");
 				self.undo_in_progress = true;
 				responses.add(BroadcastEvent::ToolAbort);
 				responses.add(DocumentMessage::DocumentHistoryBackward);

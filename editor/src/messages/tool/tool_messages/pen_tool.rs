@@ -670,6 +670,8 @@ impl Fsm for PenToolFsmState {
 			}
 			(PenToolFsmState::DraggingHandle, PenToolMessage::DragStop) => {
 				tool_data.should_mirror = true;
+				debug!("drag stop");
+				responses.add(DocumentMessage::StartTransaction);
 				tool_data.finish_placing_handle(document, transform, responses).unwrap_or(PenToolFsmState::PlacingAnchor)
 			}
 			(PenToolFsmState::DraggingHandle, PenToolMessage::PointerMove { snap_angle, break_handle, lock_angle }) => {
@@ -709,6 +711,7 @@ impl Fsm for PenToolFsmState {
 				PenToolFsmState::Ready
 			}
 			(_, PenToolMessage::Abort) => {
+				debug!("aborting");
 				responses.add(OverlaysMessage::Draw);
 
 				self

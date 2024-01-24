@@ -262,6 +262,7 @@ pub fn default_mapping() -> Mapping {
 		entry!(KeyDown(KeyX); modifiers=[Shift, Accel], action_dispatch=ToolMessage::ResetColors),
 		entry!(KeyDown(KeyX); modifiers=[Shift], action_dispatch=ToolMessage::SwapColors),
 		entry!(KeyDown(KeyC); modifiers=[Alt], action_dispatch=ToolMessage::SelectRandomPrimaryColor),
+		entry!(KeyDown(KeyZ); modifiers=[Accel], action_dispatch=ToolMessage::Undo),
 		//
 		// DocumentMessage
 		entry!(KeyDown(Space); modifiers=[Control], action_dispatch=DocumentMessage::GraphViewOverlayToggle),
@@ -271,7 +272,6 @@ pub fn default_mapping() -> Mapping {
 		entry!(KeyDown(KeyP); modifiers=[Alt], action_dispatch=DocumentMessage::DebugPrintDocument),
 		entry!(KeyDown(KeyZ); modifiers=[Accel, Shift], action_dispatch=DocumentMessage::Redo),
 		entry!(KeyDown(KeyY); modifiers=[Accel], action_dispatch=DocumentMessage::Redo),
-		entry!(KeyDown(KeyZ); modifiers=[Accel], action_dispatch=DocumentMessage::Undo),
 		entry!(KeyDown(KeyA); modifiers=[Accel, Shift], action_dispatch=DocumentMessage::DeselectAllLayers),
 		entry!(KeyDown(KeyA); modifiers=[Accel], action_dispatch=DocumentMessage::SelectAllLayers),
 		entry!(KeyDown(KeyS); modifiers=[Accel], action_dispatch=DocumentMessage::SaveDocument),

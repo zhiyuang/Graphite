@@ -136,6 +136,7 @@ pub enum ToolMessage {
 		color: Color,
 	},
 	SwapColors,
+	Undo,
 	UpdateCursor,
 	UpdateHints,
 }
